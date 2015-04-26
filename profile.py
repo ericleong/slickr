@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import fileinput
 
@@ -24,9 +25,8 @@ for line in fileinput.input():
                     in_activity = True
             elif in_activity:
                 if in_table and stripped_line.count('\t') == 3 and 'Draw' not in stripped_line:
-                    print stripped_line
+                    print(stripped_line)
                 elif 'Draw' in stripped_line:
-                    # print stripped_line
                     in_table = True
 
     elif stripped_line == "Profile data in ms:":

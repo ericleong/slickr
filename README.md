@@ -3,6 +3,11 @@ slickr
 
 A collection of python and bash scripts to collect and analyze frame rendering performance in Android apps.
 
+## requirements
+
+* [python](https://www.python.org/)
+* [matplotlib](http://matplotlib.org/) - only needed for `plot.py`
+
 ## examples
 
 **Make sure to enable the "In adb shell dumpsys gfxinfo" option for "Profile GPU rendering" inside _"Developer options"_ in your settings app!**
