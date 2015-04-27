@@ -30,6 +30,12 @@ Scroll for 8 seconds and plot the recorded data and other metrics.
 $ ./slickr.sh | plot.py
 ```
 
+Compare the frame delay histograms and demand curves of two (or more) saved profiles.
+
+```bash
+$ ./compare.py profile1.txt profile2.txt
+```
+
 ## api
 
 ```bash
