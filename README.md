@@ -8,9 +8,25 @@ A collection of python and bash scripts to collect and analyze frame rendering p
 * [python](https://www.python.org/)
 * [matplotlib](http://matplotlib.org/) - only needed for `plot.py`
 
-## examples
+## setup
+
+### on device
 
 **Make sure to enable the "In adb shell dumpsys gfxinfo" option for "Profile GPU rendering" inside _"Developer options"_ in your settings app!**
+
+_You may need to kill and restart your app for the logging to work!_
+
+### on computer
+
+If you can't execute the scripts, you may need to mark them as executable.
+
+```bash
+$ chmod +x *.sh *.py
+```
+
+should do the trick on Unix-like operating systems.
+
+## examples
 
 Scroll for 8 seconds and save the GPU profiling information for the current screen into a file.
 
