@@ -8,7 +8,7 @@ num_lines = 0
 
 for line in fileinput.input():
     try:
-        total_duration += sum(map(float, line.split('\t')))
+        total_duration += sum(map(float, line.split("\t")))
         num_lines += 1
     except:
         pass

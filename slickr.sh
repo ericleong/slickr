@@ -3,9 +3,6 @@
 # Specify the package name of the Android app you want to track
 # as the first argument.
 
-# File header
-echo -e "Draw\tPrepare\tProcess\tExecute"
-
 # Run 4 times
 for i in {1..4}
 do

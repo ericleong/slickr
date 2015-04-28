@@ -8,11 +8,16 @@ import matplotlib.pyplot as plt
 totals = []
 details = []
 headers = ["Draw", "Prepare", "Process", "Execute"]
+colors = ["cornflowerblue", "purple", "orangered", "orange"]
 
 for line in fileinput.input():
 
     try:
         values = map(float, line.split("\t"))
+
+        if len(values) == 3 and len(headers) == 4:
+            headers = ["Draw", "Process", "Execute"] # Prepare only exists after Lollipop
+            colors = ["cornflowerblue", "orangered", "orange"]
 
         totals.append(sum(values))
 
@@ -27,8 +32,6 @@ for line in fileinput.input():
 
 if len(totals) > 0 and len(details) > 0:
 
-    # Draw, Prepare, Process, Execute
-    colors = ["cornflowerblue", "purple", "orangered", "orange"]
     time = range(len(totals))
     threshold = 16.67;
 
@@ -49,12 +52,12 @@ if len(totals) > 0 and len(details) > 0:
     plt.ylabel("Frequency")
     ax.legend()
 
-    # time series
+    # frame series
     ax = plt.subplot2grid((3, 2), (1, 0), colspan=2)
     for i, (detail, column, color) in enumerate(zip(details, headers, colors)):
         ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else map(sum, zip(*details[:i])), width=1.0)
     ax.plot([0, len(totals)], [threshold, threshold], color="limegreen")
-    plt.title("Render Time Series")
+    plt.title("Render Frame Series")
     plt.xlabel("Frame Number")
     plt.xlim([0, len(totals)])
     plt.ylabel("Render Time (ms)")
@@ -73,6 +76,7 @@ if len(totals) > 0 and len(details) > 0:
     plt.ylabel("Render Time (ms)")
     ax.legend()
 
+    plt.subplots_adjust(hspace=0.35)
     plt.show()
 else:
     print("No profiling data found.", file=sys.stderr)

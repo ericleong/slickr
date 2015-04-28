@@ -60,4 +60,4 @@ $ slickr.sh <application package name>
 
 Application package name is the Java package name for the Android application. For example, for the [Tumblr app](https://play.google.com/store/apps/details?id=com.tumblr), it is `com.tumblr`. It can be gleaned from the play store url for an application.
 
-If an app has multiple activities open, `profile.py` will choose the activity with `visibility=0` (the currently visibile activity).
+If an app has multiple activities open, `profile.py` will choose the activity with `visibility=0` (the currently visibile activity). On devices below [Lollipop](https://developer.android.com/about/versions/lollipop.html), all profile data is exported.
