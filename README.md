@@ -37,13 +37,13 @@ $ ./slickr.sh > profile.txt
 Scroll for 16 seconds and display the average frame delay (in milliseconds).
 
 ```bash
-$ ./slickr.sh | avg.py
+$ ./slickr.sh | ./avg.py
 ```
 
 Scroll for 16 seconds and plot the recorded data and other metrics.
 
 ```bash
-$ ./slickr.sh | plot.py
+$ ./slickr.sh | ./plot.py
 ```
 
 Compare the frame delay histograms and demand curves of two (or more) saved profiles.
