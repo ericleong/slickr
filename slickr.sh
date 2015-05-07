@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Specify the package name of the Android app you want to track
 # as the first argument.
@@ -17,11 +17,11 @@ else
 	VERTICAL=$3
 fi
 
-for i in {1..$COUNT}
+for ((i=1; i<=$COUNT; i++))
 do
     # Swipe 8 times for 250 ms each.
     # This works out to 2000 ms, which is about the duration of 128 frames at 60 FPS
-    for i in {1..8}
+    for j in {1..8}
     do
         adb shell input touchscreen swipe 100 $VERTICAL 100 0 250
     done
