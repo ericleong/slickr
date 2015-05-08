@@ -5,16 +5,28 @@
 
 # Number of times to run
 if [ "$2" = "" ] ; then
-	COUNT=4
+    COUNT=4
 else
-	COUNT=$2
+    COUNT=$2
 fi
 
 # Vertical pixels to swipe
 if [ "$3" = "" ] ; then
-	VERTICAL=$(expr $(adb shell wm density | grep -o '[0-9]\+') \* 3)
+
+    # Try to get density with "wm"
+    DENSITY=$(adb shell wm density)
+
+    if [[ $DENSITY == *"wm: not found"* ]] ; then
+        # Grab density with "getprop"
+        DENSITY=$(adb shell getprop | grep density)
+    fi
+
+    # Grab actual density value
+    DENSITY=$(echo $DENSITY | grep -o "[0-9]\+")
+
+    VERTICAL=$(expr $DENSITY \* 3)
 else
-	VERTICAL=$3
+    VERTICAL=$3
 fi
 
 for ((i=1; i<=$COUNT; i++))
