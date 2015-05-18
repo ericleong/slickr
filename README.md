@@ -28,19 +28,19 @@ should do the trick on Unix-like operating systems.
 
 ## examples
 
-Scroll for 16 seconds and save the GPU profiling information for the current screen into a file.
+Scroll for 8 seconds and save the GPU profiling information for the current screen into a file.
 
 ```bash
 $ ./slickr.sh > profile.txt
 ```
 
-Scroll for 16 seconds and display the average frame delay (in milliseconds).
+Scroll for 8 seconds and display the average frame delay (in milliseconds).
 
 ```bash
 $ ./slickr.sh | ./avg.py
 ```
 
-Scroll for 16 seconds and plot the recorded data and other metrics.
+Scroll for 8 seconds and plot the recorded data and other metrics.
 
 ```bash
 $ ./slickr.sh | ./plot.py
