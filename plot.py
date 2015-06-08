@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 totals = []
 details = []
 headers = ["Draw", "Prepare", "Process", "Execute"]
-colors = ["cornflowerblue", "purple", "orangered", "orange"]
+colors = ["cornflowerblue", "purple", "orangered", "orange", "yellowgreen", "lightseagreen", "silver"]
 
 for line in fileinput.input():
 
@@ -29,6 +29,9 @@ for line in fileinput.input():
     except:
         if fileinput.isfirstline():
             headers = line.strip().split("\t")
+
+if len(colors) > len(headers):
+    colors = colors[:len(headers)]
 
 if len(totals) > 0 and len(details) > 0:
 
