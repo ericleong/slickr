@@ -37,28 +37,41 @@ for line in fileinput.input():
                         has_header = True
 
                     # http://developer.android.com/preview/testing/performance.html#fs-data-format
-                    framestats = stripped_line.split(",")
 
-                    # HANDLE_INPUT_START - INTENDED_VSYNC
-                    start = (int(framestats[5]) - int(framestats[1])) / 1000000
+                    # Strip trailing comma
+                    framestats = map(int, stripped_line[:len(stripped_line) - 1].split(","))
 
-                    # ANIMATION_START - HANDLE_INPUT_START
-                    handle_input = (int(framestats[6]) - int(framestats[5])) / 1000000
+                    # Default values. This keeps the data aligned with gfxinfo.
+                    start = 0
+                    handle_input = 0
+                    animations = 0
+                    traversals = 0
+                    draw = 0
+                    sync = 0
+                    gpu_work = 0
 
-                    # PERFORM_TRAVERSALS_START - ANIMATION_START
-                    animations = (int(framestats[7]) - int(framestats[6])) / 1000000
+                    if framestats[0] == 0:
 
-                    # DRAW_START - PERFORM_TRAVERSALS_START
-                    traversals = (int(framestats[8]) - int(framestats[7])) / 1000000
+                        # HANDLE_INPUT_START - INTENDED_VSYNC
+                        start = (framestats[5] - framestats[1]) / 1000000
 
-                    # SYNC_START - DRAW_START
-                    draw = (int(framestats[9]) - int(framestats[8])) / 1000000
+                        # ANIMATION_START - HANDLE_INPUT_START
+                        handle_input = (framestats[6] - framestats[5]) / 1000000
 
-                    # ISSUE_DRAW_COMMANDS_START - DRAW_START
-                    sync = (int(framestats[10]) - int(framestats[9])) / 1000000
+                        # PERFORM_TRAVERSALS_START - ANIMATION_START
+                        animations = (framestats[7] - framestats[6]) / 1000000
 
-                    # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
-                    gpu_work = (int(framestats[12]) - int(framestats[10])) / 1000000
+                        # DRAW_START - PERFORM_TRAVERSALS_START
+                        traversals = (framestats[8] - framestats[7]) / 1000000
+
+                        # SYNC_START - DRAW_START
+                        draw = (framestats[9] - framestats[8]) / 1000000
+
+                        # ISSUE_DRAW_COMMANDS_START - DRAW_START
+                        sync = (framestats[10] - framestats[9]) / 1000000
+
+                        # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
+                        gpu_work = (framestats[12] - framestats[10]) / 1000000
 
                     print(start, handle_input, animations, traversals, draw, sync, gpu_work, sep="\t")
 

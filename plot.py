@@ -40,7 +40,7 @@ if len(totals) > 0 and len(details) > 0:
 
     # histogram of frame delays
     plt.subplot2grid((3, 2), (0, 0))
-    plt.hist(totals, range(int(math.floor(min(totals))), int(math.ceil(max(totals))) + 1), color="limegreen")
+    plt.hist([i for i in totals if i > 0], range(0, int(math.ceil(max(totals))) + 1), color="limegreen")
     plt.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Distribution of Frame Rendering Times")
     plt.xlabel("Total Render Time (ms)")
@@ -48,7 +48,7 @@ if len(totals) > 0 and len(details) > 0:
 
     # histogram of each component of gfxinfo
     ax = plt.subplot2grid((3, 2), (0, 1))
-    plt.hist(details, range(int(math.floor(min(map(min, details)))), int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors)
+    plt.hist([i for i in details if i > 0], range(0, int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors)
     plt.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Distribution of Rendering Times")
     plt.xlabel("Render Time (ms)")
