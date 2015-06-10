@@ -52,17 +52,6 @@ Compare the frame delay histograms and demand curves of two (or more) saved prof
 $ ./compare.py profile1.txt profile2.txt
 ```
 
-### beta
-
-Preliminary support for [`framestats` in Android M](http://developer.android.com/preview/testing/performance.html#timing-info) is provided via `framestats.py`, which operates the same as `profile.py`. `framestats` provides [detailed infomation](http://developer.android.com/preview/testing/performance.html#fs-data-format) about the "Draw" stage of the `gfxinfo` graphs.
-
-To capture `framestats` using `slickr.sh`, modify the file from
-
-* `dumpsys gfxinfo $1` to `dumpsys gfxinfo $1 framestats`
-* `profile.py` to `framestats.py`
-
-and make sure to always add the package name when running the script.
-
 ## api
 
 ```bash
@@ -76,3 +65,5 @@ $ slickr.sh <package> <iterations> <distance>
 * `iterations` is the number of 2 second iterations to run (since 128 frames, the default buffer size, is a duration of about 2 seconds at 60 frames per second). Default is `4`.
 
 * `distance` is the scroll distance in pixels. It defaults to 3x the display density (at the bucket the device belongs to).
+
+[`framestats` in Android M](http://developer.android.com/preview/testing/performance.html#timing-info) is automatically enabled as long as a package name is provided. It provides detailed information about the draw stage of the rendering pipeline.

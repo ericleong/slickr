@@ -7,17 +7,22 @@ import matplotlib.pyplot as plt
 
 totals = []
 details = []
-headers = ["Draw", "Prepare", "Process", "Execute"]
-colors = ["cornflowerblue", "purple", "orangered", "orange", "yellowgreen", "lightseagreen", "silver"]
+headers = []
+
+colors = ["cornflowerblue", "purple", "orangered", "orange", "yellowgreen", "lightseagreen", "mediumpurple", "orchid", "crimson", "silver"]
 
 for line in fileinput.input():
 
     try:
         values = map(float, line.split("\t"))
 
-        if len(values) == 3 and len(headers) == 4:
-            headers = ["Draw", "Process", "Execute"] # Prepare only exists after Lollipop
-            colors = ["cornflowerblue", "orangered", "orange"]
+        if len(headers) == 0:
+            if len(values) == 3:
+                headers = ["Draw", "Process", "Execute"]
+            elif len(values) == 4: # Prepare only exists on Lollipop and above
+                headers = ["Draw", "Prepare", "Process", "Execute"]
+            else:
+                headers = map(str, range(len(values)))
 
         totals.append(sum(values))
 
@@ -26,11 +31,15 @@ for line in fileinput.input():
                 details[i].append(val)
             except:
                 details.append([val])
-    except:
+    except ValueError:
         if fileinput.isfirstline():
             headers = line.strip().split("\t")
+        else:
+            print("Unexpected parse error.", file=sys.stderr)
 
-if len(colors) > len(headers):
+if len(headers) == 3:
+    colors = ["cornflowerblue", "orangered", "orange"]
+elif len(colors) > len(headers):
     colors = colors[:len(headers)]
 
 if len(totals) > 0 and len(details) > 0:
@@ -43,15 +52,15 @@ if len(totals) > 0 and len(details) > 0:
     plt.hist([i for i in totals if i > 0], range(0, int(math.ceil(max(totals))) + 1), color="limegreen")
     plt.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Distribution of Frame Rendering Times")
-    plt.xlabel("Total Render Time (ms)")
+    plt.xlabel("Total Frame Time (ms)")
     plt.ylabel("Frequency")
 
     # histogram of each component of gfxinfo
     ax = plt.subplot2grid((3, 2), (0, 1))
-    plt.hist([i for i in details if i > 0], range(0, int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors)
+    plt.hist([i for i in details if i > 0], range(0, int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors, linewidth=0)
     plt.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Distribution of Rendering Times")
-    plt.xlabel("Render Time (ms)")
+    plt.xlabel("Time (ms)")
     plt.ylabel("Frequency")
     ax.legend()
 
@@ -60,10 +69,10 @@ if len(totals) > 0 and len(details) > 0:
     for i, (detail, column, color) in enumerate(zip(details, headers, colors)):
         ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else map(sum, zip(*details[:i])), width=1.0)
     ax.plot([0, len(totals)], [threshold, threshold], color="limegreen")
-    plt.title("Render Frame Series")
+    plt.title("Frame Series")
     plt.xlabel("Frame Number")
     plt.xlim([0, len(totals)])
-    plt.ylabel("Render Time (ms)")
+    plt.ylabel("Time (ms)")
     ax.legend()
 
     # sort by total frame time
@@ -73,10 +82,10 @@ if len(totals) > 0 and len(details) > 0:
     for i, (detail, column, color) in enumerate(zip(duration_curves, headers, colors)):
         ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else map(sum, zip(*duration_curves[:i])), width=1.0)
     ax.plot([0, len(totals)], [threshold, threshold], color="limegreen")
-    plt.title("Render Duration Curve")
+    plt.title("Duration Curve")
     plt.xlabel("Frame Number")
     plt.xlim([0, len(totals)])
-    plt.ylabel("Render Time (ms)")
+    plt.ylabel("Time (ms)")
     ax.legend()
 
     plt.subplots_adjust(hspace=0.35)
