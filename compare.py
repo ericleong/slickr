@@ -29,8 +29,8 @@ if len(totals) > 0:
     ax = plt.subplot(2, 1, 1)
     ax.hist(totals.values(), range(int(math.floor(min(map(min, totals.values())))), int(math.ceil(max(map(max, totals.values())))) + 1), label=totals.keys())
     ax.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
-    plt.title("Distribution of Frame Rendering Times")
-    plt.xlabel("Total Render Time (ms)")
+    plt.title("Frame Duration Distribution")
+    plt.xlabel("Total Frame Time (ms)")
     plt.ylabel("Frequency")
     ax.legend()
 
@@ -43,7 +43,7 @@ if len(totals) > 0:
 
     # render duration curve
     ax.plot([0, max_time], [threshold, threshold], color="limegreen")
-    plt.title("Render Duration Curve")
+    plt.title("Duration Curve")
     plt.xlabel("Frame Number")
     plt.xlim([0, max_time])
     plt.ylabel("Render Time (ms)")
