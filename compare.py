@@ -27,7 +27,7 @@ if len(totals) > 0:
 
     # histogram of frame delays
     ax = plt.subplot(2, 1, 1)
-    ax.hist(totals.values(), range(int(math.floor(min(map(min, totals.values())))), int(math.ceil(max(map(max, totals.values())))) + 1), label=totals.keys())
+    ax.hist(totals.values(), range(int(math.floor(min(map(min, totals.values())))), int(math.ceil(max(map(max, totals.values())))) + 1), label=totals.keys(), linewidth=0)
     ax.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Frame Duration Distribution")
     plt.xlabel("Total Frame Time (ms)")
