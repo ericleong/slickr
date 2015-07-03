@@ -90,9 +90,9 @@ for line in fileinput.input():
                 if not has_header:
                     # https://io2015codelabs.appspot.com/codelabs/android-performance-profile-gpu-rendering#5
                     if gfxinfo[0].count("\t") == 2:
-                        print("draw", "process", "execute", sep="\t")
+                        print("draw", "execute", "process", sep="\t")
                     elif gfxinfo[0].count("\t") == 3: # Prepare only exists on Lollipop and above
-                        print("draw", "prepare", "process", "execute", sep="\t")
+                        print("draw", "prepare", "execute", "process", sep="\t")
 
                     has_header = True
 
