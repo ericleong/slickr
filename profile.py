@@ -37,7 +37,7 @@ def parse_framestats(line, valid_only=False):
         # SYNC_START - DRAW_START
         draw = (framestats[9] - framestats[8]) / 1000000
 
-        # ISSUE_DRAW_COMMANDS_START - DRAW_START
+        # ISSUE_DRAW_COMMANDS_START - SYNC_START
         sync = (framestats[10] - framestats[9]) / 1000000
 
         # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
