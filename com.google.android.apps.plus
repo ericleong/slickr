@@ -1,4 +1,4 @@
-start	input	animations	traversals	draw	sync	process	execute
+start	input	animations	traversals	draw	sync	execute	process
 0.222215	0.0025	0.131417	0.034417	0.3335	0.38	3.47	0.99
 0.233243	0.017333	0.884167	0.03325	0.042667	0.54	5.59	1.05
 0.219467	0.017583	0.131167	0.031583	0.114834	0.4	3.84	1.35
