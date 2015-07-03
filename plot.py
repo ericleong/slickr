@@ -22,9 +22,9 @@ for line in fileinput.input():
 
         if len(headers) == 0:
             if len(values) == 3:
-                headers = ["Draw", "Process", "Execute"]
+                headers = ["Draw", "Execute", "Process"]
             elif len(values) == 4: # Prepare only exists on Lollipop and above
-                headers = ["Draw", "Prepare", "Process", "Execute"]
+                headers = ["Draw", "Prepare", "Execute", "Process"]
             else:
                 headers = map(str, range(len(values)))
 

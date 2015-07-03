@@ -101,13 +101,13 @@ for line in fileinput.input():
             elif len(gfxinfo) > 0 and len(gfxinfo) == len(framestats): # both
 
                 if not has_header:
-                    print("start", "input", "animations", "traversals", "draw", "sync", "process", "execute", sep="\t")
+                    print("start", "input", "animations", "traversals", "draw", "sync", "execute", "process", sep="\t")
 
                     has_header = True
 
                 for gfx, cpu in zip(gfxinfo, framestats):
                     try:
-                        # ignore "gpu" and append "process", and "execute"
+                        # ignore "gpu" and append "execute" and "process"
                         print(*(parse_framestats(cpu, True)[:-2] + tuple(map(float, gfx.split("\t"))[-3:])), sep="\t")
                     except ValueError:
                         # only use gfx data if framestats is invalid
