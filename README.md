@@ -67,3 +67,26 @@ $ slickr.sh <package> <iterations> <distance>
 * `distance` is the scroll distance in pixels. It defaults to 3x the display density (at the bucket the device belongs to).
 
 [`framestats` in Android M](http://developer.android.com/preview/testing/performance.html#timing-info) is automatically enabled as long as a package name is provided. It provides detailed information about the draw stage of the rendering pipeline.
+
+## understanding the plots
+
+![tumblr app profile](/../example/com.tumblr.png?raw=true)
+
+The Android M `framestats` data [is a series of raw timestamps](http://developer.android.com/preview/testing/performance.html#fs-data-format). These are then converted into time deltas according to the Android Developer guidelines. The [`gfxinfo` data](https://io2015codelabs.appspot.com/codelabs/android-performance-profile-gpu-rendering#5) is also plotted if available, though there is some overlap.
+
+| component  | `gfxinfo` | `framestats` timestamps                              | notes                              |
+| ---------- | --------- | ---------------------------------------------------- | ---------------------------------- |
+| start      | &darr;    | `INTENDED_VSYNC` &rarr; `HANDLE_INPUT_START`         | time spent by system               |
+| input      | &darr;    | `HANDLE_INPUT_START` &rarr; `ANIMATION_START`        | time spent handling input events   |
+| animations | &darr;    | `ANIMATION_START` &rarr; `PERFORM_TRAVERSALS_ST ART` | time spent evaluating animators    |
+| traversals | &darr;    | `PERFORM_TRAVERSALS_START` &rarr; `DRAW_START`       | time spent on layout and measure   |
+| draw       | draw      | `DRAW_START` &rarr; `SYNC_START`                     | time spent on `View.draw()`        |
+| sync       | prepare   | `DRAW_START` &rarr; `ISSUE_DRAW_COMMANDS_START`      | time spent transfering data to gpu |
+| &darr;     | execute   |                                                      | time spent executing display lists |
+| gpu        | process   | `ISSUE_DRAW_COMMANDS_START` &rarr; `FRAME_COMPLETED` | time spent waiting on gpu          |
+
+The green line represents the 16.67 ms threshold needed to achieve a [smooth 60 frames per second](https://www.youtube.com/watch?v=CaMTIgxCSqU).
+
+### duration curve
+
+The duration curve rearranges the profiling data by sorting it from slowest to fastest frame. This is based off [load duration curves](https://en.wikipedia.org/wiki/Load_duration_curve) in power engineering and illustrates how many frames went over the 16 ms threshold needed for 60 FPS and how many milliseconds they went over.
