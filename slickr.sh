@@ -29,13 +29,16 @@ else
     VERTICAL=$3
 fi
 
-# Android M features
-if [ "$1" != "" ] && [[ "$(adb shell getprop ro.build.version.release)" == "M"* ]] ; then
-
-    # http://developer.android.com/preview/testing/performance.html#timing-info
-    FRAMESTATS="framestats"
-else
-    FRAMESTATS=""
+# Android Marshmallow features
+# http://developer.android.com/preview/testing/performance.html#timing-info
+VERSION=$(adb shell getprop ro.build.version.release | cut -c 1)
+if [ "$1" != "" ] ; then
+    # Test if integer, then test if >= 6.0
+    if [[ "$2" =~ ^-?[0-9]+$ ]] && [ "$2" -ge "6" ] ; then
+        FRAMESTATS="framestats"
+    elif [ "$2" == "M" ] ; then # M preview
+        FRAMESTATS="framestats"
+    fi
 fi
 
 # Empty old data

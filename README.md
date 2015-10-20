@@ -66,7 +66,7 @@ $ slickr.sh <package> <iterations> <distance>
 
 * `distance` is the scroll distance in pixels. It defaults to 3x the display density (at the bucket the device belongs to).
 
-[`framestats` in Android M](http://developer.android.com/preview/testing/performance.html#timing-info) is automatically enabled as long as a package name is provided. It provides detailed information about the draw stage of the rendering pipeline.
+[`framestats` in Android Marshmallow (6.0)](http://developer.android.com/preview/testing/performance.html#timing-info) is automatically enabled as long as a package name is provided. It provides detailed information about the draw stage of the rendering pipeline.
 
 ## understanding the plots
 

@@ -20,7 +20,7 @@ def parse_framestats(line, valid_only=False):
     sync = 0
     gpu = 0
 
-    if framestats[0] == 0:
+    if framestats[0] == 0 and len(framestats) == 14:
 
         # HANDLE_INPUT_START - INTENDED_VSYNC
         start = (framestats[5] - framestats[1]) / 1000000
@@ -35,13 +35,13 @@ def parse_framestats(line, valid_only=False):
         traversals = (framestats[8] - framestats[7]) / 1000000
 
         # SYNC_START - DRAW_START
-        draw = (framestats[9] - framestats[8]) / 1000000
+        draw = (framestats[10] - framestats[8]) / 1000000
 
         # ISSUE_DRAW_COMMANDS_START - SYNC_START
-        sync = (framestats[10] - framestats[9]) / 1000000
+        sync = (framestats[11] - framestats[10]) / 1000000
 
         # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
-        gpu = (framestats[12] - framestats[10]) / 1000000
+        gpu = (framestats[13] - framestats[11]) / 1000000
 
     elif valid_only:
 
@@ -126,14 +126,14 @@ for line in fileinput.input():
             elif in_activity:
                 table_cols = stripped_line.count("\t")
 
-                if in_table and table_cols == num_cols and "Draw" not in stripped_line:
+                if in_table and table_cols == num_cols and "Execute" not in stripped_line:
                     gfxinfo.append(stripped_line)
-                elif "Draw" in stripped_line:
+                elif "Execute" in stripped_line:
                     in_table = True
                     num_cols = table_cols
                 elif stripped_line == "---PROFILEDATA---":
                     in_framestats = not in_framestats
-                elif in_framestats:
+                elif in_framestats and "Flags" not in stripped_line:
                     framestats.append(stripped_line)
 
     elif stripped_line == "Profile data in ms:":
