@@ -34,9 +34,9 @@ fi
 VERSION=$(adb shell getprop ro.build.version.release | cut -c 1)
 if [ "$1" != "" ] ; then
     # Test if integer, then test if >= 6.0
-    if [[ "$2" =~ ^-?[0-9]+$ ]] && [ "$2" -ge "6" ] ; then
+    if [[ "$VERSION" =~ ^-?[0-9]+$ ]] && [ "$VERSION" -ge "6" ] ; then
         FRAMESTATS="framestats"
-    elif [ "$2" == "M" ] ; then # M preview
+    elif [ "$VERSION" == "N" ] ; then # N preview
         FRAMESTATS="framestats"
     fi
 fi
