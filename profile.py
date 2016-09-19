@@ -9,7 +9,7 @@ def parse_framestats(line, valid_only=False):
     # http://developer.android.com/preview/testing/performance.html#fs-data-format
 
     # Strip trailing comma
-    framestats = map(int, line[:len(line) - 1].split(","))
+    framestats = list(map(int, line[:len(line) - 1].split(",")))
 
     # Default values. This keeps the data aligned with gfxinfo.
     start = 0
@@ -108,7 +108,7 @@ for line in fileinput.input():
                 for gfx, cpu in zip(gfxinfo, framestats):
                     try:
                         # ignore "gpu" and append "execute" and "process"
-                        print(*(parse_framestats(cpu, True)[:-2] + tuple(map(float, gfx.split("\t"))[-3:])), sep="\t")
+                        print(*(parse_framestats(cpu, True)[:-2] + tuple(list(map(float, gfx.split("\t")))[-3:])), sep="\t")
                     except ValueError:
                         # only use gfx data if framestats is invalid
                         print(*([0, 0, 0, 0] + map(float, gfx.split("\t"))), sep="\t")

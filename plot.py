@@ -18,7 +18,7 @@ for line in fileinput.input():
     files.add(fileinput.filename())
 
     try:
-        values = map(float, line.split("\t"))
+        values = list(map(float, line.split("\t")))
 
         if len(headers) == 0:
             if len(values) == 3:
@@ -62,7 +62,7 @@ if len(totals) > 0 and len(details) > 0:
 
     # histogram of each component of gfxinfo
     ax = plt.subplot2grid((3, 2), (0, 1))
-    plt.hist([i for i in details if i > 0], range(0, int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors, linewidth=0)
+    plt.hist(details, range(0, int(math.ceil(max(map(max, details)))) + 1), label=headers, color=colors, linewidth=0)
     plt.plot([threshold, threshold], [0, plt.axis()[3]], color="limegreen")
     plt.title("Component Distribution")
     plt.xlabel("Time (ms)")
@@ -72,7 +72,7 @@ if len(totals) > 0 and len(details) > 0:
     # frame series
     ax = plt.subplot2grid((3, 2), (1, 0), colspan=2)
     for i, (detail, column, color) in enumerate(zip(details, headers, colors)):
-        ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else map(sum, zip(*details[:i])), width=1.0)
+        ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else list(map(sum, zip(*details[:i]))), width=1.0)
     ax.plot([0, len(totals)], [threshold, threshold], color="limegreen")
     plt.title(title + " Frame Series")
     plt.xlabel("Frame Number")
@@ -85,7 +85,7 @@ if len(totals) > 0 and len(details) > 0:
 
     ax = plt.subplot2grid((3, 2), (2, 0), colspan=2)
     for i, (detail, column, color) in enumerate(zip(duration_curves, headers, colors)):
-        ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else map(sum, zip(*duration_curves[:i])), width=1.0)
+        ax.bar(time, detail, label=column, color=color, linewidth=0, bottom=[0] * len(detail) if i == 0 else list(map(sum, zip(*duration_curves[:i]))), width=1.0)
     ax.plot([0, len(totals)], [threshold, threshold], color="limegreen")
     plt.title(title + " Duration Curve")
     plt.xlabel("Frame Number")
