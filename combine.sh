@@ -2,8 +2,6 @@
 
 PID=$(adb shell pidof $1)
 
-adb logcat -c
-
 if [ "$2" = "" ] ; then
     TWO="-"
 else

@@ -79,7 +79,7 @@ for filename in files:
 
         axes.append(ax)
 
-        ax.legend(ncol=len(headers))
+        ax.legend(ncol=len(headers), columnspacing=0.5, handletextpad=0.5, borderpad=0.5)
 
     else:
         print("No profiling data found.", file=sys.stderr)

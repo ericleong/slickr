@@ -90,17 +90,22 @@ for line in fileinput.input():
     elif in_logcat:
         data = line[line.rfind(": ") + 2:].split("\t")
 
-        time = int(data[1])
-        field = data[0].strip()
-        value = int(data[2].strip()) / 1000000
+        try:
+            time = int(data[0])
+            field = data[1].strip()
+            value = int(data[2].strip()) / 1000000
 
-        if field not in logcat_headers:
-            logcat_headers.append(field)
+            if field not in logcat_headers:
+                logcat_headers.append(field)
 
-        if time in logcat:
-            logcat[time][field] = value
-        else:
-            logcat[time] = {field: value}
+            if time in logcat:
+                logcat[time][field] = value
+            else:
+                logcat[time] = {field: value}
+        except IndexError:
+            pass
+        except ValueError:
+            pass
 
     elif stripped_line == "--------- beginning of main":
         in_logcat = True
