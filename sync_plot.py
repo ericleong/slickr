@@ -13,15 +13,20 @@ for line in fileinput.input():
         files[fileinput.filename()] = {"totals": [], "details": [], "headers": []}
 
     try:
-        values = list(map(float, line.split("\t")))
+        split_row = line.strip().split("\t")
 
         if len(files[fileinput.filename()]["headers"]) == 0:
-            if len(values) == 3:
+            if len(split_row) == 3:
                 files[fileinput.filename()]["headers"] = ["Draw", "Execute", "Process"]
-            elif len(values) == 4: # Prepare only exists on Lollipop and above
+            elif len(split_row) == 4: # Prepare only exists on Lollipop and above
                 files[fileinput.filename()]["headers"] = ["Draw", "Prepare", "Execute", "Process"]
             else:
-                files[fileinput.filename()]["headers"] = map(str, range(len(values)))
+                files[fileinput.filename()]["headers"] = split_row
+
+        if len(split_row) > len(files[fileinput.filename()]["headers"]):
+            split_row = split_row[:len(files[fileinput.filename()]["headers"])]
+
+        values = list(map(float, split_row))
 
         files[fileinput.filename()]["totals"].append(sum(values))
 

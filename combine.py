@@ -24,31 +24,33 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
     if framestats[0] == 0 and len(framestats) == 14:
 
         # HANDLE_INPUT_START - INTENDED_VSYNC
-        start = (framestats[5] - framestats[1]) / 1000000
+        start = (framestats[5] - framestats[1]) / 1000000.0
 
         # ANIMATION_START - HANDLE_INPUT_START
-        handle_input = (framestats[6] - framestats[5]) / 1000000
+        handle_input = (framestats[6] - framestats[5]) / 1000000.0
 
         # PERFORM_TRAVERSALS_START - ANIMATION_START
-        animations = (framestats[7] - framestats[6]) / 1000000
+        animations = (framestats[7] - framestats[6]) / 1000000.0
 
         # DRAW_START - PERFORM_TRAVERSALS_START
-        traversals = (framestats[8] - framestats[7]) / 1000000
+        traversals = (framestats[8] - framestats[7]) / 1000000.0
 
         # SYNC_START - DRAW_START
-        draw = (framestats[10] - framestats[8]) / 1000000
+        draw = (framestats[10] - framestats[8]) / 1000000.0
 
         # ISSUE_DRAW_COMMANDS_START - SYNC_START
-        sync = (framestats[11] - framestats[10]) / 1000000
+        sync = (framestats[11] - framestats[10]) / 1000000.0
 
         # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
-        gpu = (framestats[13] - framestats[11]) / 1000000
+        gpu = (framestats[13] - framestats[11]) / 1000000.0
 
         vsync = framestats[1]
 
         if len(logcat_headers) > 0 and fd2:
             if vsync in logcat:
-                print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2)
+                print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat else "\n")
+                if "_" in logcat:
+                    print(*logcat["_"], sep="\t", file=fd2)
             else:
                 print(*([0] * len(logcat_headers)), sep="\t", file=fd2)
 
@@ -75,8 +77,6 @@ logcat_headers = []
 
 num_cols = 0
 
-# fd2 = os.fdopen(os.open("test", os.O_WRONLY | os.O_CREAT | os.O_APPEND))
-# fd2 = open("app_data.txt", "w")
 fd2 = sys.stderr
 
 # Parse input
@@ -93,15 +93,25 @@ for line in fileinput.input():
         try:
             time = int(data[0])
             field = data[1].strip()
-            value = int(data[2].strip()) / 1000000
+            value = int(data[2].strip()) / 1000000.0
 
             if field not in logcat_headers:
                 logcat_headers.append(field)
 
             if time in logcat:
-                logcat[time][field] = value
+                if field in logcat[time]:
+                    logcat[time][field] += value
+                else:
+                    logcat[time][field] = value
             else:
                 logcat[time] = {field: value}
+
+            if len(data) > 3:
+                if "_" in logcat:
+                    logcat["_"].update([datum.strip() for datum in data[3:]])
+                else:
+                    logcat["_"] = set([datum.strip() for datum in data[3:]])
+
         except IndexError:
             pass
         except ValueError:
