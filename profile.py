@@ -83,7 +83,7 @@ for line in fileinput.input():
 
                     has_header = True
 
-                map(lambda frame: print(*frame, sep="\t"), map(parse_framestats, framestats))
+                list(map(lambda frame: print(*frame, sep="\t"), map(parse_framestats, framestats)))
 
             elif len(gfxinfo) > 0 and len(framestats) == 0: # only gfxinfo
 
@@ -96,7 +96,7 @@ for line in fileinput.input():
 
                     has_header = True
 
-                map(print, gfxinfo)
+                list(map(print, gfxinfo))
 
             elif len(gfxinfo) > 0 and len(gfxinfo) == len(framestats): # both
 
