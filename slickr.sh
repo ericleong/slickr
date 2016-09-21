@@ -61,7 +61,7 @@ if [[ "$MAJOR_VERSION" =~ ^-?[0-9]+$ ]] ; then
 fi
 
 # Empty old data
-adb shell dumpsys gfxinfo $1 > /dev/null
+adb shell dumpsys gfxinfo $1 reset > /dev/null
 
 # Collect data for $COUNT times
 if [ $COUNT -gt "1" ] ; then
