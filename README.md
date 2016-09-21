@@ -78,7 +78,7 @@ The Android M `framestats` data [is a series of raw timestamps](http://developer
 | ---------- | --------- | ---------------------------------------------------- | ---------------------------------- |
 | start      | &darr;    | `INTENDED_VSYNC` &rarr; `HANDLE_INPUT_START`         | time spent by system               |
 | input      | &darr;    | `HANDLE_INPUT_START` &rarr; `ANIMATION_START`        | time spent handling input events   |
-| animations | &darr;    | `ANIMATION_START` &rarr; `PERFORM_TRAVERSALS_ST ART` | time spent evaluating animators    |
+| animations | &darr;    | `ANIMATION_START` &rarr; `PERFORM_TRAVERSALS_START` | time spent evaluating animators    |
 | traversals | &darr;    | `PERFORM_TRAVERSALS_START` &rarr; `DRAW_START`       | time spent on layout and measure   |
 | draw       | draw      | `DRAW_START` &rarr; `SYNC_START`                     | time spent on `View.draw()`        |
 | sync       | prepare   | `SYNC_START` &rarr; `ISSUE_DRAW_COMMANDS_START`      | time spent transfering data to gpu |
