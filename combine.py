@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import fileinput
 import os
+import datetime
 
 def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
 
@@ -24,29 +25,41 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
     if framestats[0] == 0 and len(framestats) == 14:
 
         # HANDLE_INPUT_START - INTENDED_VSYNC
-        start = (framestats[5] - framestats[1]) / 1000000.0
+        start = (framestats[5] - framestats[1]) / 1000000
 
         # ANIMATION_START - HANDLE_INPUT_START
-        handle_input = (framestats[6] - framestats[5]) / 1000000.0
+        handle_input = (framestats[6] - framestats[5]) / 1000000
 
         # PERFORM_TRAVERSALS_START - ANIMATION_START
-        animations = (framestats[7] - framestats[6]) / 1000000.0
+        animations = (framestats[7] - framestats[6]) / 1000000
 
         # DRAW_START - PERFORM_TRAVERSALS_START
-        traversals = (framestats[8] - framestats[7]) / 1000000.0
+        traversals = (framestats[8] - framestats[7]) / 1000000
 
         # SYNC_START - DRAW_START
-        draw = (framestats[10] - framestats[8]) / 1000000.0
+        draw = (framestats[10] - framestats[8]) / 1000000
 
         # ISSUE_DRAW_COMMANDS_START - SYNC_START
-        sync = (framestats[11] - framestats[10]) / 1000000.0
+        sync = (framestats[11] - framestats[10]) / 1000000
 
         # FRAME_COMPLETED - ISSUE_DRAW_COMMANDS_START
-        gpu = (framestats[13] - framestats[11]) / 1000000.0
+        gpu = (framestats[13] - framestats[11]) / 1000000
 
         vsync = framestats[1]
 
         if len(logcat_headers) > 0 and fd2:
+            for time in uncertain_logcat:
+                adjusted_time = time - (realtime - uptime)
+
+                print(adjusted_time, file=fd2)
+
+                print(adjusted_time, file=fd2)
+                if adjusted_time >= vsync and adjusted_time < vsync + 16666667: # 16 ms
+                    if vsync in logcat:
+                        logcat[vsync].update(uncertain_logcat[time])
+                    else:
+                        logcat[vsync] = uncertain_logcat[time]
+
             if vsync in logcat:
                 print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat else "\n")
                 if "_" in logcat:
@@ -74,10 +87,15 @@ gfxinfo = []
 framestats = []
 logcat = {}
 logcat_headers = []
+uncertain_logcat = {}
 
 num_cols = 0
 
 fd2 = sys.stderr
+
+current_time = datetime.datetime.now()
+uptime = 0
+realtime = 0
 
 # Parse input
 
@@ -88,37 +106,67 @@ for line in fileinput.input():
     if stripped_line == "Applications Graphics Acceleration Info:":
         in_logcat = False
     elif in_logcat:
-        data = line[line.rfind(": ") + 2:].split("\t")
 
+        if "W art" in stripped_line:
+
+            if "Suspending all threads took: " in stripped_line:
+                duration_str = stripped_line[stripped_line.rfind("Suspending all threads took: ") + len("Suspending all threads took: "):]
+                duration = float(duration_str[:duration_str.rfind("ms")])
+
+                time = float(datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(current_time.year).strftime("%s.%f")) * 1e9                
+
+                try:
+                    if time in uncertain_logcat:
+                        if "suspend" in logcat[time]:
+                            logcat[time]["suspend"] += duration
+                        else:
+                            logcat[time]["suspend"] = duration
+                    else:
+                        logcat[time] = {"suspend": duration}
+                except IndexError:
+                    pass
+                except ValueError:
+                    pass
+
+        else:
+            data = line[line.rfind(": ") + 2:].split("\t")
+
+            try:
+                time = int(data[0])
+                field = data[1].strip()
+                value = int(data[2].strip()) / 1000000
+
+                if field not in logcat_headers:
+                    logcat_headers.append(field)
+
+                if time in logcat:
+                    if field in logcat[time]:
+                        logcat[time][field] += value
+                    else:
+                        logcat[time][field] = value
+                else:
+                    logcat[time] = {field: value}
+
+                if len(data) > 3:
+                    if "_" in logcat:
+                        logcat["_"].update([datum.strip() for datum in data[3:]])
+                    else:
+                        logcat["_"] = set([datum.strip() for datum in data[3:]])
+
+            except IndexError:
+                pass
+            except ValueError:
+                pass
+
+    elif stripped_line.startswith("--------- beginning of"):
+        in_logcat = True
+    elif stripped_line.startswith("Uptime: ") and uptime == 0:
+        times = stripped_line.split(" ")
         try:
-            time = int(data[0])
-            field = data[1].strip()
-            value = int(data[2].strip()) / 1000000.0
-
-            if field not in logcat_headers:
-                logcat_headers.append(field)
-
-            if time in logcat:
-                if field in logcat[time]:
-                    logcat[time][field] += value
-                else:
-                    logcat[time][field] = value
-            else:
-                logcat[time] = {field: value}
-
-            if len(data) > 3:
-                if "_" in logcat:
-                    logcat["_"].update([datum.strip() for datum in data[3:]])
-                else:
-                    logcat["_"] = set([datum.strip() for datum in data[3:]])
-
-        except IndexError:
-            pass
+            uptime = float(stripped_line[1])
+            realtime = float(stripped_line[3])
         except ValueError:
             pass
-
-    elif stripped_line == "--------- beginning of main":
-        in_logcat = True
     elif in_profile_section:
 
         if stripped_line == "View hierarchy:":
@@ -196,3 +244,9 @@ for line in fileinput.input():
 
     elif stripped_line == "Profile data in ms:":
         in_profile_section = True
+    elif fileinput.isfirstline():
+        try:
+            time = float(stripped_line)
+            current_time = datetime.datetime.fromtimestamp(time)
+        except ValueError:
+            pass

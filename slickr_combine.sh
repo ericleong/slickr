@@ -2,10 +2,10 @@
 
 PACKAGE=$1
 
-if [ $4 != "" ] ; then
-	NAME="$4"
-else
+if [ "$4" == "" ] ; then
 	NAME="${PACKAGE##*.}"
+else
+	NAME="$4"
 fi
 
 FRAMESTATS="${NAME}_framestats.txt"
@@ -20,10 +20,12 @@ DATA="${NAME}_data.txt"
 adb logcat -c
 
 # ./combine.sh $1 $3 | tee $DATA | ./combine.py > $FRAMESTATS 2> $APPDATA
-./combine.sh $1 $3 | ./combine.py > $FRAMESTATS 2> $APPDATA
+# ./combine.sh $1 $3 | ./combine.py > $FRAMESTATS 2> $APPDATA
+
+./combine.sh $1 $3 > $DATA
 
 sleep 1
 
-adb shell am force-stop $PACKAGE
+# adb shell am force-stop $PACKAGE
 
 echo "./sync_plot.py $FRAMESTATS $APPDATA"
