@@ -17,11 +17,8 @@ fi
 ./slickr.sh $1 $TWO $THREE "cat" > temp.txt
 
 adb shell echo \$EPOCHREALTIME
-# echo "--------- beginning of main"
-# adb logcat -d | awk -v pid="$PID" '$3 == pid {print($0)}' | grep "Perf:GraywaterTimelineAdapter"
-adb logcat -d -v threadtime
 
-# adb logcat -d | awk -v pid="$PID" '$3 == pid {print($0)}'
+adb logcat -d -v time
 
 echo "$(<temp.txt)"
 

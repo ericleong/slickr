@@ -54,8 +54,6 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
         # vsync relative to record_start
         adjusted_frame_time = vsync - uptime * 1e6
 
-        # print(vsync, file=fd2)
-
         if len(logcat_headers) > 0 and fd2:
 
             global prev_frame_time
@@ -89,6 +87,8 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
     return start, handle_input, animations, traversals, draw, sync, gpu
 
 # Globals
+
+filter_term = "Perf:SimpleTimelineAdapter"
 
 has_header = False
 has_logcat_header = False
@@ -139,15 +139,11 @@ for line in fileinput.input():
 
                 time = datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(record_start.year)
 
-                # print(time, file=fd2)
-
                 try:
                     time = float(time.strftime("%s.%f")) * 1e9
                 except ValueError:
                     ## http://stackoverflow.com/a/8778548
                     time = time.timestamp() * 1e9
-
-                # print(time, file=fd2)
 
                 try:
                     if time in uncertain_logcat:
@@ -165,10 +161,7 @@ for line in fileinput.input():
                 if "suspend" not in logcat_headers:
                     logcat_headers.append("suspend")
 
-                # adjusted_log_time = time - record_start_ts
-                # print(adjusted_log_time, duration, sep="\t", file=fd2)
-
-        elif "Perf:SimpleTimelineAdapter" in stripped_line:
+        elif filter_term in stripped_line:
             data = stripped_line[stripped_line.rfind(": ") + 2:].split("\t")
 
             try:
