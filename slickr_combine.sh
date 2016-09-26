@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PACKAGE=$1
+PID=$(adb shell pidof $1)
 
 if [ "$4" == "" ] ; then
 	NAME="${PACKAGE##*.}"

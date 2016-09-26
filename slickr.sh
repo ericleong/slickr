@@ -77,7 +77,7 @@ if [ $COUNT -gt "1" ] ; then
     # adb shell is a little slow, so when this is finished,
     # about 128 frames (2 seconds at 60 fps) should have passed.
     # Afterwards, dump data and filter for profile data
-    adb shell "for i in `seq -s ' ' 1 $COUNT`; do for j in `seq -s ' ' 1 3`; do input $SWIPE 100 $VERTICAL 100 0 $DURATION; done; dumpsys gfxinfo $1 $FRAMESTATS; done;" | cat
+    adb shell "for i in `seq -s ' ' 1 $COUNT`; do for j in `seq -s ' ' 1 3`; do input $SWIPE 100 $VERTICAL 100 0 $DURATION; done; dumpsys gfxinfo $1 $FRAMESTATS; done;" | $PROCESSOR
 else
-    adb shell "for j in `seq -s ' ' 1 3`; do input $SWIPE 100 $VERTICAL 100 0 $DURATION; done; dumpsys gfxinfo $1 $FRAMESTATS;" | cat
+    adb shell "for j in `seq -s ' ' 1 3`; do input $SWIPE 100 $VERTICAL 100 0 $DURATION; done; dumpsys gfxinfo $1 $FRAMESTATS;" | $PROCESSOR
 fi

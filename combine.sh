@@ -18,7 +18,8 @@ fi
 
 adb shell echo \$EPOCHREALTIME
 
-adb logcat -d -v time
+echo "--------- beginning of data" # needed because of grep
+adb logcat -d | grep -e "$PID\s[0-9]\{5\}\sW\sart" -e "$PID\s[0-9]\{5\}\s[A-Z]\sPerf"
 
 echo "$(<temp.txt)"
 

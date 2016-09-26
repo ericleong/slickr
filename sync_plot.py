@@ -31,6 +31,10 @@ for line in fileinput.input():
         files[fileinput.filename()]["totals"].append(sum(values))
 
         for i, val in enumerate(values):
+            if val < 0:
+                print("line", fileinput.filelineno(), "col", i, ":", val, "< 0", file=sys.stderr)
+                val = 0
+
             try:
                 files[fileinput.filename()]["details"][i].append(val)
             except:

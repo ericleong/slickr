@@ -88,8 +88,6 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
 
 # Globals
 
-filter_term = "Perf:SimpleTimelineAdapter"
-
 has_header = False
 has_logcat_header = False
 
@@ -124,7 +122,7 @@ for line in fileinput.input():
         in_logcat = False
     elif in_logcat:
 
-        if "W art" in stripped_line:
+        if "W/art" in stripped_line:
 
             if "Suspending all threads took: " in stripped_line:
                 duration_str = stripped_line[stripped_line.rfind("Suspending all threads took: ") + len("Suspending all threads took: "):]
@@ -161,7 +159,7 @@ for line in fileinput.input():
                 if "suspend" not in logcat_headers:
                     logcat_headers.append("suspend")
 
-        elif filter_term in stripped_line:
+        else:
             data = stripped_line[stripped_line.rfind(": ") + 2:].split("\t")
 
             try:
