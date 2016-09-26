@@ -47,25 +47,27 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
 
         vsync = framestats[1]
 
+        # print(vsync, file=fd2)
+
         if len(logcat_headers) > 0 and fd2:
             for time in uncertain_logcat:
-                adjusted_time = time - (realtime - uptime)
+                adjusted_time = time - (realtime - uptime) * 1e6
 
-                print(adjusted_time, file=fd2)
+                print(vsync, time, current_time.timestamp() * 1e9, realtime, uptime, file=fd2)
+                # print(adjusted_time, file=fd2)
 
-                print(adjusted_time, file=fd2)
                 if adjusted_time >= vsync and adjusted_time < vsync + 16666667: # 16 ms
                     if vsync in logcat:
                         logcat[vsync].update(uncertain_logcat[time])
                     else:
                         logcat[vsync] = uncertain_logcat[time]
 
-            if vsync in logcat:
-                print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat else "\n")
-                if "_" in logcat:
-                    print(*logcat["_"], sep="\t", file=fd2)
-            else:
-                print(*([0] * len(logcat_headers)), sep="\t", file=fd2)
+            # if vsync in logcat:
+            #     print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat else "\n")
+            #     if "_" in logcat:
+            #         print(*logcat["_"], sep="\t", file=fd2)
+            # else:
+            #     print(*([0] * len(logcat_headers)), sep="\t", file=fd2)
 
     elif valid_only:
         raise ValueError("Invalid frame.")
@@ -111,22 +113,42 @@ for line in fileinput.input():
 
             if "Suspending all threads took: " in stripped_line:
                 duration_str = stripped_line[stripped_line.rfind("Suspending all threads took: ") + len("Suspending all threads took: "):]
-                duration = float(duration_str[:duration_str.rfind("ms")])
+                duration_unit_index = duration_str.rfind("ms")
 
-                time = float(datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(current_time.year).strftime("%s.%f")) * 1e9                
+                if duration_unit_index > 0:
+                    duration = float(duration_str[:duration_unit_index])
+                else:
+                    duration_seconds_index = duration_str.rfind("s")
+
+                    duration = float(duration_str[:duration_seconds_index]) * 1000
+
+                time = datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(current_time.year)
+
+                # print(time, file=fd2)
+
+                try:
+                    time = float(time.strftime("%s.%f")) * 1e9
+                except ValueError:
+                    ## http://stackoverflow.com/a/8778548
+                    time = time.timestamp() * 1e9
+
+                # print(time, file=fd2)
 
                 try:
                     if time in uncertain_logcat:
-                        if "suspend" in logcat[time]:
-                            logcat[time]["suspend"] += duration
+                        if "suspend" in uncertain_logcat[time]:
+                            uncertain_logcat[time]["suspend"] += duration
                         else:
-                            logcat[time]["suspend"] = duration
+                            uncertain_logcat[time]["suspend"] = duration
                     else:
-                        logcat[time] = {"suspend": duration}
+                        uncertain_logcat[time] = {"suspend": duration}
                 except IndexError:
                     pass
                 except ValueError:
                     pass
+
+                if "suspend" not in logcat_headers:
+                    logcat_headers.append("suspend")
 
         else:
             data = line[line.rfind(": ") + 2:].split("\t")
@@ -163,8 +185,8 @@ for line in fileinput.input():
     elif stripped_line.startswith("Uptime: ") and uptime == 0:
         times = stripped_line.split(" ")
         try:
-            uptime = float(stripped_line[1])
-            realtime = float(stripped_line[3])
+            uptime = int(times[1])
+            realtime = int(times[3])
         except ValueError:
             pass
     elif in_profile_section:
