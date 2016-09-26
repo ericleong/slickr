@@ -6,6 +6,9 @@ import fileinput
 import os
 import datetime
 
+global prev_frame_time
+prev_frame_time = 0
+
 def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
 
     # http://developer.android.com/preview/testing/performance.html#fs-data-format
@@ -21,6 +24,7 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
     draw = 0
     sync = 0
     gpu = 0
+    adjusted_frame_time = 0
 
     if framestats[0] == 0 and len(framestats) == 14:
 
@@ -47,27 +51,37 @@ def parse_framestats(line, valid_only=False, logcat_headers=[], fd2=None):
 
         vsync = framestats[1]
 
+        # vsync relative to record_start
+        adjusted_frame_time = vsync - uptime * 1e6
+
         # print(vsync, file=fd2)
 
         if len(logcat_headers) > 0 and fd2:
+
+            global prev_frame_time
+
             for time in uncertain_logcat:
-                adjusted_time = time - (realtime - uptime) * 1e6
+                # log time relative to record_start
+                adjusted_log_time = time - record_start_ts
 
-                print(vsync, time, current_time.timestamp() * 1e9, realtime, uptime, file=fd2)
-                # print(adjusted_time, file=fd2)
-
-                if adjusted_time >= vsync and adjusted_time < vsync + 16666667: # 16 ms
+                if adjusted_log_time >= prev_frame_time and adjusted_log_time < adjusted_frame_time:
                     if vsync in logcat:
-                        logcat[vsync].update(uncertain_logcat[time])
+                        for col in uncertain_logcat[time]:
+                            if col in logcat[vsync]:
+                                logcat[vsync][col] += uncertain_logcat[time][col]
+                            else:
+                                logcat[vsync][col] = uncertain_logcat[time][col]
                     else:
-                        logcat[vsync] = uncertain_logcat[time]
+                        logcat[vsync] = uncertain_logcat[time] 
 
-            # if vsync in logcat:
-            #     print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat else "\n")
-            #     if "_" in logcat:
-            #         print(*logcat["_"], sep="\t", file=fd2)
-            # else:
-            #     print(*([0] * len(logcat_headers)), sep="\t", file=fd2)
+            prev_frame_time = adjusted_frame_time
+
+            if vsync in logcat:
+                print(*[logcat[vsync][field] if field in logcat[vsync] else 0 for field in logcat_headers], sep="\t", file=fd2, end="\t" if "_" in logcat[vsync] else "\n")
+                if "_" in logcat[vsync]:
+                    print(*logcat[vsync]["_"], sep="\t", file=fd2)
+            else:
+                print(*([0] * len(logcat_headers)), sep="\t", file=fd2)
 
     elif valid_only:
         raise ValueError("Invalid frame.")
@@ -95,7 +109,8 @@ num_cols = 0
 
 fd2 = sys.stderr
 
-current_time = datetime.datetime.now()
+record_start = datetime.datetime.now()
+record_start_ts = float(record_start.strftime("%s.%f")) * 1e9
 uptime = 0
 realtime = 0
 
@@ -122,7 +137,7 @@ for line in fileinput.input():
 
                     duration = float(duration_str[:duration_seconds_index]) * 1000
 
-                time = datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(current_time.year)
+                time = datetime.datetime.strptime(line[:line.find(".") + 4], "%m-%d %H:%M:%S.%f").replace(record_start.year)
 
                 # print(time, file=fd2)
 
@@ -150,8 +165,11 @@ for line in fileinput.input():
                 if "suspend" not in logcat_headers:
                     logcat_headers.append("suspend")
 
-        else:
-            data = line[line.rfind(": ") + 2:].split("\t")
+                # adjusted_log_time = time - record_start_ts
+                # print(adjusted_log_time, duration, sep="\t", file=fd2)
+
+        elif "Perf:SimpleTimelineAdapter" in stripped_line:
+            data = stripped_line[stripped_line.rfind(": ") + 2:].split("\t")
 
             try:
                 time = int(data[0])
@@ -170,10 +188,10 @@ for line in fileinput.input():
                     logcat[time] = {field: value}
 
                 if len(data) > 3:
-                    if "_" in logcat:
-                        logcat["_"].update([datum.strip() for datum in data[3:]])
+                    if "_" in logcat[time]:
+                        logcat[time]["_"].update([datum.strip() for datum in data[3:]])
                     else:
-                        logcat["_"] = set([datum.strip() for datum in data[3:]])
+                        logcat[time]["_"] = set([datum.strip() for datum in data[3:]])
 
             except IndexError:
                 pass
@@ -269,6 +287,7 @@ for line in fileinput.input():
     elif fileinput.isfirstline():
         try:
             time = float(stripped_line)
-            current_time = datetime.datetime.fromtimestamp(time)
+            record_start = datetime.datetime.fromtimestamp(time)
+            record_start_ts = float(record_start.strftime("%s.%f")) * 1e9
         except ValueError:
             pass
